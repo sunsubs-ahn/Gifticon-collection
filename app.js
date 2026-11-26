@@ -864,6 +864,19 @@
       const ok = await askConfirm("쿠폰번호가 짧아요. 이대로 저장할까요?", "저장");
       if (!ok) return;
     }
+    if (code) {
+      const normalized = normalizeCode(code);
+      const twin = state.coupons.find(
+        (c) => c.code === normalized && c.id !== modal.editId && !c.used
+      );
+      if (twin) {
+        const ok = await askConfirm(
+          `같은 쿠폰번호가 이미 있어요.\n${twin.brand} ${twin.title}\n그래도 하나 더 담을까요?`,
+          "담기"
+        );
+        if (!ok) return;
+      }
+    }
 
     const now = Date.now();
     const existing = modal.editId ? state.coupons.find((c) => c.id === modal.editId) : null;
@@ -1316,13 +1329,19 @@
       return `${c.brand} ${c.title} (${d.text})`;
     }).join(" · ") + (urgent.length > 3 ? " 외" : "");
 
+    const opts = { body, icon: "icon-192.png", tag: "gc-expiry", badge: "icon-192.png" };
     try {
+      let shown = false;
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        const reg = await navigator.serviceWorker.ready;
-        await reg.showNotification(title, { body, icon: "icon-192.png", tag: "gc-expiry", badge: "icon-192.png" });
-      } else {
-        new Notification(title, { body, icon: "icon-192.png", tag: "gc-expiry" });
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          await reg.showNotification(title, opts);
+          shown = true;
+        } catch (e) {
+          shown = false;
+        }
       }
+      if (!shown) new Notification(title, opts);
       localStorage.setItem(key, "1");
     } catch (e) {
       console.warn("알림을 표시하지 못했어요", e);
