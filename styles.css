@@ -51,33 +51,38 @@ body { min-height: 100vh; }
 
 /* ---------- header ---------- */
 .app-header {
-  padding: 20px 18px 10px;
+  padding: 18px 18px 8px;
   background: linear-gradient(180deg, #fbf9ff 0%, var(--bg) 100%);
-  position: sticky;
-  top: 0;
-  z-index: 20;
 }
 
 .header-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
+
+.brand-group { flex: 1; min-width: 0; }
 
 .app-title {
   margin: 0;
-  font-size: 23px;
+  font-size: 19px;
   font-weight: 800;
-  letter-spacing: -0.6px;
-  line-height: 1.15;
+  letter-spacing: -0.7px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-sub {
-  margin: 5px 0 0;
-  font-size: 12px;
+  margin: 4px 0 0;
+  font-size: 11.5px;
   color: var(--ink-faint);
   letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-actions {
@@ -89,8 +94,8 @@ body { min-height: 100vh; }
 .pill-btn {
   border: 0;
   border-radius: 999px;
-  padding: 9px 13px;
-  font-size: 12.5px;
+  padding: 8px 11px;
+  font-size: 11.5px;
   font-weight: 700;
   font-family: inherit;
   color: var(--ink);
@@ -108,7 +113,7 @@ body { min-height: 100vh; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .summary-card {
@@ -143,6 +148,8 @@ body { min-height: 100vh; }
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 88%, rgba(0, 0, 0, 0.15) 100%);
+  mask-image: linear-gradient(90deg, #000 88%, rgba(0, 0, 0, 0.15) 100%);
 }
 .folder-tabs::-webkit-scrollbar { display: none; }
 

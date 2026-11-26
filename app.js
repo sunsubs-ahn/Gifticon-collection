@@ -87,8 +87,12 @@
     "var(--pastel-butter)", "var(--pastel-sky)", "var(--pastel-rose)",
     "var(--pastel-lilac)", "var(--pastel-sage)"
   ];
+  // 브랜드별로 눈에 익은 파스텔 색을 고정해 두면 카드가 더 잘 구분됩니다.
+  const BAR_OVERRIDE = { "스타벅스": "var(--pastel-mint)" };
+
   function barColor(brand) {
-    const s = String(brand || "");
+    const s = String(brand || "").trim();
+    if (BAR_OVERRIDE[s]) return BAR_OVERRIDE[s];
     let h = 0;
     for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
     return BAR_VARS[h % BAR_VARS.length];
@@ -226,12 +230,20 @@
       const on = btn.dataset.folder === state.folder;
       btn.classList.toggle("active", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
+      if (on && btn.scrollIntoView) {
+        btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
     });
+    const isMember = state.folder === "멤버십 카드";
+    const summary = document.querySelector(".summary-row");
+    if (summary) summary.classList.toggle("hidden", isMember);
+    const sub = $("appSub");
+    if (sub) sub.textContent = isMember ? "쿠폰과 따로 보관 · 기기 안에만 저장" : "기기 내 로컬 보관 · 외부 전송 없음";
   }
 
   function renderToolbar() {
     const isMember = state.folder === "멤버십 카드";
-    $("btnAddMember").classList.toggle("hidden", !isMember);
+    $("btnAddCoupon").textContent = isMember ? "+ 멤버십 추가" : "+ 쿠폰 추가";
     $("btnSort").classList.toggle("hidden", isMember);
     $("btnShowUsed").classList.toggle("hidden", isMember);
     $("btnSort").textContent = state.sort === "expiry" ? "유효기간 임박순" : "등록순";
@@ -888,6 +900,7 @@
       toast("기프티콘을 담았어요.");
     }
     closeCouponModal();
+    if (state.folder === "멤버십 카드") state.folder = "전체";
     renderAll();
   }
 
@@ -1341,12 +1354,14 @@
    * 12. 이벤트 연결
    * =======================================================*/
   function bindEvents() {
-    $("btnAddCoupon").addEventListener("click", () => openCouponModal());
+    $("btnAddCoupon").addEventListener("click", () => {
+      if (state.folder === "멤버십 카드") openMemberModal();
+      else openCouponModal();
+    });
     $("btnGoMembership").addEventListener("click", () => {
       setFolder("멤버십 카드");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
-    $("btnAddMember").addEventListener("click", () => openMemberModal());
 
     $("folderTabs").addEventListener("click", (e) => {
       const btn = e.target.closest(".tab-chip");
@@ -1557,11 +1572,14 @@
     if ("Notification" in window && Notification.permission === "granted") {
       setTimeout(notifyExpiring, 900);
     }
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js").catch(() => {});
-      });
-    }
+  }
+
+  // 서비스 워커는 데이터 로딩을 기다리지 않고 바로 등록합니다.
+  // (load 이후에 등록 리스너를 달면 이미 load가 끝나 등록이 빠지는 경우가 있음)
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch((e) => {
+      console.info("서비스 워커를 등록하지 못했어요.", e && e.message);
+    });
   }
 
   // 테스트용 (앱 동작에는 영향 없음)
