@@ -59,7 +59,8 @@
   const isExpired = (c) => { const n = daysUntil(c.expiry); return n !== null && n < 0; };
 
   function fmtDot(dateStr) {
-    return dateStr ? dateStr.replace(/-/g, ".") : "";
+    if (!parseYmd(dateStr)) return "";
+    return dateStr.replace(/-/g, ".");
   }
   function fmtKorean(dateStr) {
     const d = parseYmd(dateStr);
@@ -852,8 +853,15 @@
     const brand = $("fBrand").value.trim();
     const title = $("fTitle").value.trim();
     const code = $("fCode").value.trim();
-    const expiry = $("fExpiry").value;
+    const expiryRaw = $("fExpiry").value;
     const folder = $("fFolder").value;
+    // 날짜 칸에 이상한 값이 들어 있으면 저장하지 않습니다. (빈 값은 괜찮아요)
+    const expiry = parseYmd(expiryRaw) ? expiryRaw : "";
+    if (expiryRaw && !expiry) {
+      toast("만료일을 다시 확인해 주세요.");
+      $("fExpiry").focus();
+      return;
+    }
     const type = $("fType").value;
     const balanceRaw = $("fBalance").value;
     const memo = $("fMemo").value.trim();
@@ -1158,7 +1166,7 @@
         brand: c.brand || "",
         title: c.title || "",
         code: c.code || "",
-        expiry: c.expiry || "",
+        expiry: parseYmd(c.expiry) ? c.expiry : "",
         folder: FOLDERS.includes(c.folder) ? c.folder : "기타",
         type: c.type === "금액권" ? "금액권" : "교환권",
         balance: c.balance != null ? Number(c.balance) : null,

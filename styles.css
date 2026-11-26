@@ -914,6 +914,15 @@ body { min-height: 100vh; }
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+/* ---------- 아주 좁은 화면 (320px대) ---------- */
+@media (max-width: 359px) {
+  .header-top { flex-wrap: wrap; }
+  .brand-group { flex: 1 0 100%; }
+  .header-actions { margin-top: 8px; margin-left: auto; }
+  .app-title { font-size: 18px; }
+  .summary-value { font-size: 17px; }
+}
+
 /* ---------- wide screens ---------- */
 @media (min-width: 700px) {
   .sheet-backdrop { align-items: center; }
