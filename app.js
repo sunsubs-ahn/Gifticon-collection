@@ -193,7 +193,7 @@
     showUsed: false
   };
 
-  const FOLDERS = ["전체", "사진첩", "문자", "카톡 선물하기", "기타", "멤버십 카드"];
+  const FOLDERS = ["전체", "사진첩", "문자", "카톡 선물하기", "스타벅스", "기타", "멤버십 카드"];
 
   /* =========================================================
    * 3. 렌더링
@@ -303,7 +303,7 @@
       </div>
       <div class="coupon-body">
         <div class="coupon-meta">
-          <span class="badge">${esc(c.folder)}</span>
+          <span class="badge" data-folder="${esc(c.folder)}">${esc(c.folder)}</span>
           <span class="dday ${d.cls}">${c.used ? "사용완료" : d.text}</span>
         </div>
         <h3 class="coupon-title">${esc(c.title || "기프티콘")}</h3>
@@ -465,7 +465,22 @@
     return digits;
   }
 
-  function detectFolder(text) {
+  /** 스타벅스 앱·e-쿠폰·별 쿠폰 등 스타벅스 쿠폰인지 판별 */
+  function looksStarbucks(text, brand) {
+    const t = String(text || "");
+    if (brand === "스타벅스" || /스타벅스|STARBUCKS/i.test(t)) return true;
+    // 스타벅스에서만 쓰는 표현
+    if (/별\s*쿠폰|사이렌\s*오더|사이렌오더|리워드\s*별|스타벅스\s*카드/.test(t)) return true;
+    // 여러 브랜드가 쓰는 표현은 다른 브랜드가 없을 때만
+    const hasOther = BRANDS.some((b) => b !== "스타벅스" && t.toUpperCase().includes(b.toUpperCase()));
+    if (hasOther) return false;
+    return /e[\s-]?쿠폰|사이즈\s*업|샷\s*추가|시럽\s*추가|1\s*\+\s*1/.test(t);
+  }
+
+  function detectFolder(text, brand) {
+    // 카톡 선물하기 안내문이 분명하면 그 폴더를 우선합니다.
+    if (/카카오\s*선물하기|카카오톡\s*선물하기/.test(text)) return "카톡 선물하기";
+    if (looksStarbucks(text, brand)) return "스타벅스";
     if (/카카오|선물하기|카톡/.test(text)) return "카톡 선물하기";
     if (/문자|SMS|MMS|web\s*발신/i.test(text)) return "문자";
     if (/사진첩|갤러리|캡처|캡쳐|이미지/.test(text)) return "사진첩";
@@ -526,7 +541,9 @@
 
     // --- 브랜드 ---
     const upper = flat.toUpperCase();
+    if (/STARBUCKS|스타벅스/.test(upper)) out.brand = "스타벅스";
     for (const b of BRANDS) {
+      if (out.brand) break;
       const key = b.toUpperCase();
       if (upper.includes(key)) {
         // 'CU' 같은 짧은 이름은 단어 경계일 때만
@@ -555,7 +572,7 @@
       candidates.push(clean);
     });
 
-    const strongHint = /(아메리카노|라떼|커피|음료|1잔|2잔|3잔|1개|2개|3개|세트|조각|박스|피자|치킨|버거|샌드위치|케이크|머그|텀블러|스낵|아이스크림|도넛|빵|샐러드|떡볶이|김밥|영화|관람|페레로|쉐이크|주스|에이드|요거트|마카롱|초콜릿|쿠키|핫도그|떡|닭강정|스테이크|파스타)/;
+    const strongHint = /(아메리카노|라떼|커피|음료|1잔|2잔|3잔|1개|2개|3개|세트|조각|박스|피자|치킨|버거|샌드위치|케이크|머그|텀블러|스낵|아이스크림|도넛|빵|샐러드|떡볶이|김밥|영화|관람|페레로|쉐이크|주스|에이드|요거트|마카롱|초콜릿|쿠키|핫도그|떡|닭강정|스테이크|파스타|별\s*쿠폰|e[\s-]?쿠폰|프라푸치노|콜드브루|돌체|카라멜|사이즈\s*업|리워드|1\s*\+\s*1)/;
     const weakHint = /(상품권|쿠폰|교환권|금액권|충전권|모바일|상품)/;
     const titleLine = candidates.find((l) => strongHint.test(l)) || candidates.find((l) => weakHint.test(l)) || candidates.find((l) => !looksHeader.test(l));
     const titleHint = strongHint;
@@ -578,7 +595,7 @@
       if (stripped.length >= 2) out.title = stripped;
     }
 
-    out.folder = detectFolder(text);
+    out.folder = detectFolder(text, out.brand);
     return out;
   }
 

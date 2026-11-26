@@ -305,6 +305,24 @@ body { min-height: 100vh; }
   white-space: nowrap;
 }
 
+/* 스타벅스 폴더 뱃지 · 파스텔 민트/그린 */
+.badge[data-folder="스타벅스"] {
+  background: #ddf2e6;
+  color: #2b7a55;
+}
+.badge[data-folder="카톡 선물하기"] {
+  background: #fff2d9;
+  color: #8a6a2f;
+}
+.badge[data-folder="문자"] {
+  background: #e6effc;
+  color: #45679c;
+}
+.badge[data-folder="사진첩"] {
+  background: #f3e9fb;
+  color: #6f4f92;
+}
+
 .dday {
   font-size: 15.5px;
   font-weight: 800;
