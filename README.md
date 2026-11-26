@@ -6,7 +6,7 @@
 ## 쓰는 방법
 
 1. 폰 브라우저에서 아래 주소를 엽니다.
-   https://sunsubs-ahn.github.io/gifticon-collection/
+   https://sunsubs-ahn.github.io/Gifticon-collection/
 2. 브라우저 메뉴에서 **홈 화면에 추가**를 누르면 앱처럼 열립니다.
 3. `+ 쿠폰 추가`에서 기프티콘 **사진을 올리거나 문자 내용을 붙여넣으면**
    쿠폰번호·만료일·브랜드·상품명을 자동으로 읽어 채워 줍니다.
